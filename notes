@@ -1,0 +1,2068 @@
+mailid: sathyamus@outlook.com
+
+Server: srxblrtrtst99
+
+putty is availble in s:\_tools
+
+cmp,diff,patch,grep,process management,scheduling tasks,
+linking files,changing file access permissions(chmod,umask),tr,i/o redirection,
+
+sed,awk,
+shell scripting
+
+
+
+
+
+[ganesha@localhost ~]$ su - root
+Password: 
+[root@localhost ~]# clear
+
+[root@localhost ~]# useradd krishna
+[root@localhost ~]# passwd krishna
+Changing password for user krishna.
+New password: 
+BAD PASSWORD: it is based on a dictionary word
+BAD PASSWORD: is too simple
+Retype new password: 
+passwd: all authentication tokens updated successfully.
+[root@localhost ~]# ls /
+bin  boot  dev  etc  home  lib  lost+found  media  mnt  opt  proc  root  sbin  selinux  srv  sys  tmp  usr  var
+[root@localhost ~]# su - krishna
+[krishna@localhost ~]$ pwd
+/home/krishna
+[krishna@localhost ~]$ echo $PS1
+[\u@\h \W]\$
+[krishna@localhost ~]$ echo $HOME
+/home/krishna
+[krishna@localhost ~]$ echo $PATH
+/usr/kerberos/sbin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/krishna/bin
+[krishna@localhost ~]$ echo $LOGNAME
+krishna
+[krishna@localhost ~]$ PS1="$ "
+$ ls
+$ ls -a
+.  ..  .bash_logout  .bash_profile  .bashrc  .gnome2  .mozilla
+$ echo $SHELL
+/bin/bash
+$ cat .bash_profile 
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+PATH=$PATH:$HOME/bin
+
+export PATH
+$ cat .bashrc
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# User specific aliases and functions
+$ cat /etc/bashrc
+# /etc/bashrc
+
+# System wide functions and aliases
+# Environment stuff goes in /etc/profile
+
+# It's NOT good idea to change this file unless you know what you
+# are doing. Much better way is to create custom.sh shell script in
+# /etc/profile.d/ to make custom changes to environment. This will
+# prevent need for merging in future updates.
+
+# By default, we want this to get set.
+# Even for non-interactive, non-login shells.
+# Current threshold for system reserved uid/gids is 200
+# You could check uidgid reservation validity in
+# /usr/share/doc/setup-*/uidgid file
+if [ $UID -gt 199 ] && [ "`id -gn`" = "`id -un`" ]; then
+    umask 002
+else
+    umask 022
+fi
+
+# are we an interactive shell?
+if [ "$PS1" ]; then
+    case $TERM in
+    xterm*)
+        if [ -e /etc/sysconfig/bash-prompt-xterm ]; then
+            PROMPT_COMMAND=/etc/sysconfig/bash-prompt-xterm
+        else
+            PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/~}"; echo -ne "\007"'
+        fi
+        ;;
+    screen)
+        if [ -e /etc/sysconfig/bash-prompt-screen ]; then
+            PROMPT_COMMAND=/etc/sysconfig/bash-prompt-screen
+        else
+            PROMPT_COMMAND='echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/~}"; echo -ne "\033\\"'
+        fi
+        ;;
+    *)
+        [ -e /etc/sysconfig/bash-prompt-default ] && PROMPT_COMMAND=/etc/sysconfig/bash-prompt-default
+        ;;
+    esac
+    # Turn on checkwinsize
+    shopt -s checkwinsize
+    [ "$PS1" = "\\s-\\v\\\$ " ] && PS1="[\u@\h \W]\\$ "
+    # You might want to have e.g. tty in prompt (e.g. more virtual machines)
+    # and console windows
+    # If you want to do so, just add e.g.
+    # if [ "$PS1" ]; then
+    #   PS1="[\u@\h:\l \W]\\$ "
+    # fi
+    # to your custom modification shell script in /etc/profile.d/ directory
+fi
+
+if ! shopt -q login_shell ; then # We're not a login shell
+    # Need to redefine pathmunge, it get's undefined at the end of /etc/profile
+    # Ok to use faster bashism here as /etc/bashrc is used only by bash
+    pathmunge () {
+        if [[ ! "$PATH" =~ "(^|:)$1(:|$)" ]];then
+            if [ "$2" = "after" ] ; then
+                PATH=$PATH:$1
+            else
+                PATH=$1:$PATH
+            fi
+        fi
+    }
+
+    # Only display echos from profile.d scripts if we are no login shell
+    # and interactive - otherwise just process them to set envvars
+    for i in /etc/profile.d/*.sh; do
+        if [ -r "$i" ]; then
+            if [ "$PS1" ]; then
+                . $i
+            else
+                . $i >/dev/null 2>&1
+            fi
+        fi
+    done
+
+    unset i
+    unset pathmunge
+fi
+# vim:ts=4:sw=4
+$ ls -a
+.  ..  .bash_logout  .bash_profile  .bashrc  .gnome2  .mozilla
+$ 
+$ vi file1
+$ vi file2
+$ cat file1
+this is file1
+$ cat file2
+this is file2
+$ cmp file1 file2
+file1 file2 differ: byte 13, line 1
+$ 
+$ cmp -s file1 file2
+$ 
+$ echo $?
+1
+$ cmp -s file1 file1
+$ 
+$ echo $?
+0
+$ vi team1
+$ vi team2
+$ cat team1
+saurav
+sachin
+rahul
+dhoni
+zaheer
+$ cat team2
+sachin
+dravid
+dhoni
+zaheer
+laxman
+$ paste team1 team2
+saurav	sachin
+sachin	dravid
+rahul	dhoni
+dhoni	zaheer
+zaheer	laxman
+$ diff team1 team2
+1d0
+< saurav
+3c2
+< rahul
+---
+> dravid
+5a5
+> laxman
+$ diff team1 team2 > diff_file
+$ 
+$ cat diff_file
+1d0
+< saurav
+3c2
+< rahul
+---
+> dravid
+5a5
+> laxman
+$ 
+$ patch team1 diff_file
+Command not found. 
+**********************************************************************************
+Process management
+------------------
+ps - process statistics
+
+ps -l  : long listing
+ps -A  : all the processes 
+
+<command_line> &   : to run any commandline in background mode
+
+When a process is running in foreground mode -> ctrl + c : it terminates
+
+When a process is running in foreground mode -> ctrl + z : to suspend a process
+
+
+bigprogram.c
+------------
+#include<stdio.h>
+main()
+{
+  int i;
+  for(i=30;i>=1;i--)
+  {
+    printf("Will be completed in %d secs\n",i);
+    sleep(1);
+  }
+}
+
+$ cc bigprogram.c -o bigprogram
+
+$ ./bigprogram
+
+$ jobs		-- will display background and suspended processes
+
+$ fg %<jobno>	-- resume suspended process in foreground mode
+
+$ bg %<jobno>	-- resume suspended process in background mode
+
+$ kill <pid>	-- to terminate a process
+
+$ kill -9 <pid>	-- sure killer
+--------------------------------------------------------------------------------------
+Scheduling a process:
+---------------------
+at	: to schedule a process to be executed once at later time.
+batch	: to schedule a process to be executed when load is less on server.
+crontab	: to schedule a process which will be executed repeatedly
+
+
+$ tty
+/dev/pts/0
+$ 
+$ date
+Thu Oct 15 11:22:18 IST 2015
+$ 
+$ at 11:24
+at> echo "Welcome to unix" > /dev/pts/0
+at> ls -a > /dev/pts/0
+at> <EOT>
+job 1 at Thu Oct 15 11:24:00 2015
+$ 
+$ at -l
+1	Thu Oct 15 11:24:00 2015 a ganesha
+$ 
+$ Welcome to unix
+.	       .bashrc	Documents  .gnome2	    .ICEauthority    Music	.pulse		     .thumbnails
+..	       .cache	Downloads  .gnome2_private  .icons	     .nautilus	.pulse-cookie	     Videos
+.bash_history  .config	.esd_auth  .gstreamer-0.10  .imsettings.log  notes	.recently-used.xbel  .xsession-errors
+.bash_logout   .dbus	.gconf	   .gtk-bookmarks   .local	     Pictures	Templates	     .xsession-errors.old
+.bash_profile  Desktop	.gconfd    .gvfs	    .mozilla	     Public	.themes
+
+$ atrm 1
+Cannot find jobid 1
+$ at -l
+$ 
+--------------------------------------------------------------------------
+crontab 
+-------
+$ crontab
+30	*	*	*	*	echo "This is cronjob" > /dev/pts/0
+$ 
+$ crontab -l
+30	*	*	*	*	echo "This is cronjob" > /dev/pts/0
+$ 
+$ 
+$ This is cronjob
+
+
+   30		*		*		*		*
+(min:0-59)  (hour:0-23)  (day of month)   (month:1-12)	(day of week)
+			  (1-31)			   (0-6)
+
+$ crontab -e
+crontab: installing new crontab
+$ 
+$ crontab -l
+30	*	*	*	*	echo "This is cronjob" > /dev/pts/0
+45	11	15	*	*	echo "Today:15th at 11:45" > /dev/pts/0
+$ Today:15th at 11:45
+*********************************************************************************************************************
+Input & Output redirection:
+---------------------------
+
+
+#include<stdio.h>
+main()
+{
+  FILE *fp;
+  fp = fopen("file.txt","r");
+  fread(fp);
+  fwrite(STDOUT);
+  fclose(fp);
+}
+
+#include<stdio.h>
+main()
+{
+  int fd;
+  fd = open("file.txt",0);	-> sys_open() - kernel routine
+  read(fd);
+  write(1);
+  close(fd);
+}
+
+
+Std input file - keyboard - fd:0
+Std output file - monitor - fd:1
+Std error file - montitor - fd:2
+
+$ vi file1
+$ 
+$ ls
+Desktop  Documents  Downloads  file1  Music  notes  Pictures  Public  Templates  Videos
+$ 
+$ cat file1
+this is file1
+$ 
+$ cat file1 > file2
+$ cat file2
+this is file1
+$ 
+$ cat file2 > file2
+cat: file2: input file is output file
+$ cat file2
+$ 
+$ vi file2
+$ cat file2
+this is file2
+$ 
+$ cat file1 >> file2
+$ cat file2
+this is file2
+this is file1
+$ 
+$ cat file2 >> file2
+cat: file2: input file is output file
+$ cat file2
+this is file2
+this is file1
+$ cat
+welcome
+welcome
+to
+to
+unix
+unix
+$ 
+$ cat > message
+welcome
+to
+unix
+$ 
+$ cat message
+welcome
+to
+unix
+$ 
+$ cat nofile
+cat: nofile: No such file or directory
+$ 
+$ cat nofile > errorfile
+cat: nofile: No such file or directory
+$ 
+$ cat nofile 2> errorfile
+$ cat errorfile
+cat: nofile: No such file or directory
+$ 
+$ cat file2
+this is file2
+this is file1
+$ 
+$ grep file1 file2 file1 nofile > outfile 2> errorfile
+$ 
+$ cat outfile
+file2:this is file1
+file1:this is file1
+$ 
+$ cat errorfile
+grep: nofile: No such file or directory
+$ 
+$ 
+$ 
+$ 
+$ rm outfile
+$ 
+$ grep file1 file2 file1 nofile > outfile 2>&1
+$ 
+$ 
+$ 
+$ 
+$ 
+$ cat outfile
+file2:this is file1
+file1:this is file1
+grep: nofile: No such file or directory
+$ 
+--------------------------------------------------------------------------------------------------
+Linking files:
+--------------
+
+BOOT BLOCK	| SUPER BLOCK		|INODE BLOCK				|DATA BLOCKS
+-Boot strap	|-Type of filesystem	|-File type				|-Stores actual
+ program is	|-No of inodes		|-FAP					| data
+ stored		|-List of free inodes	|-No of links				|
+		 -No of data blocks	|-Owner id				|
+		 -List of free 		|-Group id				|
+		  data block		|-3 timestamps				|
+					    *creation				|
+					    *access				|
+					    *modification			|
+					 -filesize				|
+					 -Array of datablock addresses		|
+					  in which actual data is stored	|
+						
+--------------------------------------------------------------------------------------------------
+Types of files:
+----------------
+ordinary file
+directory file
+symbolic link file
+character device file
+block device file
+named pipe file
+socket file
+
+Linking files:
+--------------
+Types of links:
+---------------
+1.Hard link:
+
+$ mkdir -p DIR1/DIR2/DIR3/DIR4
+$ 
+$ tree DIR1/
+DIR1/
+└── DIR2
+    └── DIR3
+        └── DIR4
+
+3 directories, 0 files
+$ 
+$ LS
+Command not found. 
+^C
+$ ls
+Desktop  Documents  errorfile  file2    Music  outfile   Public     Videos
+DIR1     Downloads  file1      message  notes  Pictures  Templates
+$ 
+$ vi DIR1/DIR2/DIR3/DIR4/unix
+$ 
+$ cat DIR1/DIR2/DIR3/DIR4/unix
+this is unix file
+$ 
+$ ls -li DIR1/DIR2/DIR3/DIR4/unix
+6463 -rw-rw-r--. 1 ganesha ganesha 18 Oct 15 12:26 DIR1/DIR2/DIR3/DIR4/unix
+$ 
+
+/home/ganesha/DIR1/DIR2/DIR3/DIR4
+...
+unix	6463
+...
+
+						6463 - inode number
+						File type: ordinary file
+						FAP : rw-rw-r--
+						No of links:1
+						owner:ganesha
+						group:ganesha
+						filesize:18
+						3 timestamps
+						Array of datablock address
+							- 1023
+
+
+
+						Datablocks:
+						-----------
+						1023
+						this is unix file.
+
+$ ln DIR1/DIR2/DIR3/DIR4/unix unix_ln
+$ cat unix_ln
+this is unix file
+$ ls -li unix
+ls: cannot access unix: No such file or directory
+$ ls -li unix_ln
+6463 -rw-rw-r--. 2 ganesha ganesha 18 Oct 15 12:26 unix_ln
+
+/home/ganesha
+ ....
+ unix_ln	6463
+
+ - inode numbers of both files would be same
+ - no of links will be incremented by 1
+ - file contents can be modified,viewed using any of these files and changes are reflected in
+   all the files.
+ - What if original file is deleted?
+	- other linked files will not be affected.
+	- only link count will be decremented.(secure files)
+ - Hard links are used for linking files within the same filesystem.
+
+
+2.Soft/Symbolic link:
+
+$ cat file2
+this is file2
+this is file1
+$ 
+$ ls -li file2
+6456 -rw-rw-r--. 1 ganesha ganesha 28 Oct 15 12:00 file2
+
+/home/ganesha
+...  
+file2  6456
+....
+
+						6456 - inode number
+						File type: ordinary file
+						FAP : rw-rw-r--
+						No of links:1
+						owner:ganesha
+						group:ganesha
+						filesize:28
+						3 timestamps
+						Array of datablock address
+							- 1023
+
+
+
+						Datablocks:
+						-----------
+						2023
+						this is file2.
+						this is file1.
+
+
+$ ln -s file2 file2_sln
+
+
+/home/ganesha
+....
+file2_sln   6454
+
+						6454 - inode number
+						File type: symbolic link file
+						FAP : rwxrwxrwx
+						No of links:1
+						owner:ganesha
+						group:ganesha
+						filesize:5
+						3 timestamps
+						Linked inf:
+						file2_sln -> file2
+
+$ cat file2_sln
+this is file2
+this is file1
+
+
+
+$ 
+$ ls -li file2*
+6456 -rw-rw-r--. 1 ganesha ganesha 28 Oct 15 12:00 file2
+6454 lrwxrwxrwx. 1 ganesha ganesha  5 Oct 15 12:44 file2_sln -> file2
+
+$ vi file2_sln
+$ cat file2
+this is file2
+this is file1
+this is appended
+$ 
+$ ls -li file2*
+6456 -rw-rw-r--. 1 ganesha ganesha 45 Oct 15 12:50 file2
+6454 lrwxrwxrwx. 1 ganesha ganesha  5 Oct 15 12:44 file2_sln -> file2
+$ 
+$ rm file2
+$ 
+$ cat file2_sln
+cat: file2_sln: No such file or directory
+
+ - inode numbers of both files would be different
+ - no of links will not be affected
+ - file contents can be modified,viewed using any of these files and changes are reflected in
+   all the files.
+ - What if original file is deleted?
+	- symbolic link file will be affected
+ - what if original file is recreated?
+	- symbolic link will be re-establised
+ - Soft links are used for linking files across filesystem
+---------------------------------------------------------------------------------------------------
+umask
+-----
+
+$ umask
+0002
+$ 
+$ touch file3
+$ ls -l file3
+-rw-rw-r--. 1 ganesha ganesha 0 Oct 15 14:11 file3
+$ mkdir sg
+$ ls -l
+total 80
+drwxr-xr-x. 2 ganesha ganesha  4096 Oct 14 14:49 Desktop
+drwxrwxr-x. 3 ganesha ganesha  4096 Oct 15 12:26 DIR1
+drwxr-xr-x. 2 ganesha ganesha  4096 Oct 14 14:23 Documents
+drwxr-xr-x. 2 ganesha ganesha  4096 Oct 14 14:23 Downloads
+-rw-rw-r--. 1 ganesha ganesha    40 Oct 15 12:12 errorfile
+-rw-rw-r--. 1 ganesha ganesha    14 Oct 15 11:58 file1
+-rw-rw-r--. 1 ganesha ganesha    14 Oct 15 12:53 file2
+lrwxrwxrwx. 1 ganesha ganesha     5 Oct 15 12:44 file2_sln -> file2
+-rw-rw-r--. 1 ganesha ganesha     0 Oct 15 14:11 file3
+-rw-rw-r--. 1 ganesha ganesha    16 Oct 15 12:09 message
+drwxr-xr-x. 2 ganesha ganesha  4096 Oct 14 14:23 Music
+-rw-rw-r--. 1 ganesha ganesha 13381 Oct 15 14:01 notes
+-rw-rw-r--. 1 ganesha ganesha    80 Oct 15 12:13 outfile
+drwxr-xr-x. 2 ganesha ganesha  4096 Oct 14 14:23 Pictures
+drwxr-xr-x. 2 ganesha ganesha  4096 Oct 14 14:23 Public
+drwxrwxr-x. 2 ganesha ganesha  4096 Oct 15 14:11 sg
+drwxr-xr-x. 2 ganesha ganesha  4096 Oct 14 14:23 Templates
+-rw-rw-r--. 1 ganesha ganesha    35 Oct 15 12:38 unix_ln
+drwxr-xr-x. 2 ganesha ganesha  4096 Oct 14 14:23 Videos
+
+
+Files:
+
+	6	6	6
+	0	0	2   - umask value (permission which you wish to deny)
+       ---------------------
+	6	6	4   - default FAP assigned for files
+       ---------------------
+
+Directories:
+
+	7	7	7
+	0	0	2   - umask value (permission which you wish to deny)
+       ---------------------
+	7	7	5   - default FAP assigned for directory
+       ---------------------
+
+$ umask 026
+$ 
+$ touch file4
+$ ls -l file4
+-rw-r-----. 1 ganesha ganesha 0 Oct 15 14:15 file4
+---------------------------------------------------------------------------------------------
+Editors supported in unix:
+ -ed,ex,sed,vi,vim
+
+sed - stream editor - it is non-interactive line editor
+-------------------------------------------------------
+Following operations can be performed using sed:
+	-print
+	-substitute
+	-insert
+	-delete
+	-append
+	-change
+
+print(p)option
+--------------
+$ vi datafile
+$ cat datafile
+1 dhoni 37 89970
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ 
+$ sed 'p' datafile
+1 dhoni 37 89970
+1 dhoni 37 89970
+2 sachin 41 97550
+2 sachin 41 97550
+3 laxman 40 54980
+3 laxman 40 54980
+4 sehwag 38 68930
+4 sehwag 38 68930
+5 dravid 41 69450
+5 dravid 41 69450
+6 yuvraj 35 58950
+6 yuvraj 35 58950
+$ 
+$ sed '2p' datafile
+1 dhoni 37 89970
+2 sachin 41 97550
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ 
+$ sed -n '2p' datafile
+2 sachin 41 97550
+$ 
+$ sed -n '2,4p' datafile
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+$ 
+$ sed -n '/sachin/p' datafile
+2 sachin 41 97550
+$ 
+$ sed -n '/sachin/,/dravid/p' datafile
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+$ 
+$ sed -n '2,/dravid/p' datafile
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+$ 
+$ sed -n '/sachin/,4p' datafile
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+$ 
+$ sed -n '/sachin/,+2p' datafile
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+$ 
+$ sed -n -e '2p' -e '4p' datafile
+2 sachin 41 97550
+4 sehwag 38 68930
+$ 
+$ sed -n -e '/sachin/p' -e '/dravid/p' datafile
+2 sachin 41 97550
+5 dravid 41 69450
+$ 
+$ sed -n '1,4w outfile' datafile
+$ 
+$ cat outfile
+1 dhoni 37 89970
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+$ 
+$ sed -n '/3/p' datafile
+1 dhoni 37 89970
+3 laxman 40 54980
+4 sehwag 38 68930
+6 yuvraj 35 58950
+$ 
+$ sed -n '/^3/p' datafile
+3 laxman 40 54980
+$ 
+$ sed -n '/30$/p' datafile
+4 sehwag 38 68930
+$ 
+$ sed -n '/^$/p' datafile
+---------------------------------------------------------------
+Substitute(s) option
+--------------------
+$ cat datafile
+1 dhoni 37 89970
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ 
+$ sed 's/5/X/' datafile
+1 dhoni 37 89970
+2 sachin 41 97X50
+3 laxman 40 X4980
+4 sehwag 38 68930
+X dravid 41 69450
+6 yuvraj 3X 58950
+$ 
+$ cat datafile
+1 dhoni 37 89970
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ 
+$ sed -i 's/5/X/' datafile
+$ cat datafile
+1 dhoni 37 89970
+2 sachin 41 97X50
+3 laxman 40 X4980
+4 sehwag 38 68930
+X dravid 41 69450
+6 yuvraj 3X 58950
+$ sed -i 's/5/X/g' datafile
+$ cat datafile
+1 dhoni 37 89970
+2 sachin 41 97XX0
+3 laxman 40 X4980
+4 sehwag 38 68930
+X dravid 41 694X0
+6 yuvraj 3X X89X0
+$ 
+$ sed -i 's/X/5/g' datafile
+$ cat datafile
+1 dhoni 37 89970
+2 sachin 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ 
+$ sed '1,4s/5/X/g' datafile
+1 dhoni 37 89970
+2 sachin 41 97XX0
+3 laxman 40 X4980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ 
+$ sed '/sachin/s/sachin/sachin tendulakar/' datafile
+1 dhoni 37 89970
+2 sachin tendulakar 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ 
+$ sed '/sachin/s/sachin/& tendulkar/' datafile
+1 dhoni 37 89970
+2 sachin tendulkar 41 97550
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ 
+$ sed -n '/sac/p' datafile
+2 sachin 41 97550
+-----------------------------------------------------------------------------------------
+delete(d) option
+-----------------
+************************************************************************************
+awk - mainly used for processing datafiles.
+-------------------------------------------
+$ cat datafile
+1 dhoni 37 89970
+2 sachin 42 95565
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ awk '{print $0}' datafile
+1 dhoni 37 89970
+2 sachin 42 95565
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ awk '{print $2,$4}' datafile
+dhoni 89970
+sachin 95565
+laxman 54980
+sehwag 68930
+dravid 69450
+yuvraj 58950
+$ awk '{print $2,"earns salary of",$4}' datafile
+dhoni earns salary of 89970
+sachin earns salary of 95565
+laxman earns salary of 54980
+sehwag earns salary of 68930
+dravid earns salary of 69450
+yuvraj earns salary of 58950
+$ awk '{printf("%s\t%7.2f\n",$2,$4)}' datafile
+dhoni	89970.00
+sachin	95565.00
+laxman	54980.00
+sehwag	68930.00
+dravid	69450.00
+yuvraj	58950.00
+$ 
+$ awk '/sachin/{printf("%s\t%7.2f\n",$2,$4)}' datafile
+sachin	95565.00
+$ 
+$ awk '/sachin/,/dravid/{printf("%s\t%7.2f\n",$2,$4)}' datafile
+sachin	95565.00
+laxman	54980.00
+sehwag	68930.00
+dravid	69450.00
+
+$ awk '/sachin/,/dravid/{printf("%s\t%7.2f\n",toupper($2),$4)}' datafile
+SACHIN	95565.00
+LAXMAN	54980.00
+SEHWAG	68930.00
+DRAVID	69450.00
+
+$ awk '$2=="sachin"' datafile
+2 sachin 42 95565
+$ 
+$ awk '$3 > 40 || $4 > 80000' datafile
+1 dhoni 37 89970
+2 sachin 42 95565
+5 dravid 41 69450
+$ 
+$ awk '$4 >= 70000 && $4 <= 90000' datafile
+1 dhoni 37 89970
+$ 
+$ awk '{print NR,$0}' datafile
+1 1 dhoni 37 89970
+2 2 sachin 42 95565
+3 3 laxman 40 54980
+4 4 sehwag 38 68930
+5 5 dravid 41 69450
+6 6 yuvraj 35 58950
+$ 
+$ awk 'NR==2 ||NR==4' datafile
+2 sachin 42 95565
+4 sehwag 38 68930
+$ 
+$ awk '{print $NR}' datafile
+1
+sachin
+40
+68930
+
+
+$ awk '{print $0,NF}' datafile
+1 dhoni 37 89970 4
+2 sachin 42 95565 4
+3 laxman 40 54980 4
+4 sehwag 38 68930 4
+5 dravid 41 69450 4
+6 yuvraj 35 58950 4
+$ 
+$ awk '{print $NF}' datafile
+89970
+95565
+54980
+68930
+69450
+58950
+
+$ cp datafile cricket
+$ 
+$ cat cricket
+1 dhoni 37 89970
+2 sachin 42 95565
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ 
+$ sed -i 's/ /-/g' cricket
+$ cat cricket
+1-dhoni-37-89970
+2-sachin-42-95565
+3-laxman-40-54980
+4-sehwag-38-68930
+5-dravid-41-69450
+6-yuvraj-35-58950
+$ 
+$ awk -F "-" {print $2,$4}' cricket
+> ^C
+$ 
+$ awk -F "-" '{print $2,$4}' cricket
+dhoni 89970
+sachin 95565
+laxman 54980
+sehwag 68930
+dravid 69450
+yuvraj 58950
+$ 
+$ awk -F "-" '{OFS="#" ; print $2,$4}' cricket
+dhoni#89970
+sachin#95565
+laxman#54980
+sehwag#68930
+dravid#69450
+yuvraj#58950
+$ 
+$ cat datafile
+1 dhoni 37 89970
+2 sachin 42 95565
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ awk 'BEGIN {printf("\n\tIndian Cricket Team\n") ; sum=0}
+{
+  printf("%s earns salary of %7.2f\n",$2,$4) 
+  sum = sum + $4
+}
+END{printf("\nTotal Salary:%10.2f\n",sum)}' datafile
+
+	Indian Cricket Team
+dhoni earns salary of 89970.00
+sachin earns salary of 95565.00
+laxman earns salary of 54980.00
+sehwag earns salary of 68930.00
+dravid earns salary of 69450.00
+yuvraj earns salary of 58950.00
+
+Total Salary: 437845.00
+$ 
+$ vi cmdfile
+$ 
+$ cat cmdfile
+BEGIN {printf("\n\tIndian Cricket Team\n\n") ; sum=0}
+{
+  if($4 > 60000)
+  {
+     printf("%s earns salary of %7.2f\n",$2,$4) 
+     sum = sum + $4
+  }
+}
+END{printf("\n\tTotal Salary:%10.2f\n",sum)}
+$ awk -f cmdfile datafile
+
+	Indian Cricket Team
+
+dhoni earns salary of 89970.00
+sachin earns salary of 95565.00
+sehwag earns salary of 68930.00
+dravid earns salary of 69450.00
+
+	Total Salary: 323915.00
+***********************************************************************************
+SHELL programming
+-----------------
+What is a shell?
+----------------
+ -It is a command interpreter
+ -It also provides with programming constructs which can be used for building logic
+  in shell scripts.
+
+What is shell script?
+---------------------
+ -It is a simple text file which contains sequence of valid unix commands alongwith
+  optional control flow structures
+
+What is the importance shell scripts?
+-------------------------------------
+ -It is used for performing routine tasks like:
+	*managing users
+	*installing application software
+	*deploying web application
+	*writing scripts for performing database backup
+
+Types of major shells
+---------------------
+ -sh	: bourne shell 
+ -ksh	: korn shell  		- most powerful shell
+ -bash	: bourne again shell 	- default shell in linux environments
+ -csh	: c shell
+ -tcsh	: tennel c shell
+
+Syntax of control flow structures of sh,ksh,bash are similar
+
+For csh and tcsh syntax is similar to 'C' language
+
+Shell variables:
+----------------
+$ echo $PS1
+$
+$ echo $PS2
+>
+$ echo $HOME
+/home/ganesha
+$ 
+$ echo $SHELL
+/bin/bash
+$ 
+$ echo $LOGNAME
+ganesha
+$ 
+$ echo $PATH
+/usr/kerberos/sbin:/usr/kerberos/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/ganesha/bin
+$ 
+$ PS
+Command not found. 
+^C
+$ ps
+  PID TTY          TIME CMD
+21592 pts/0    00:00:00 bash
+21744 pts/0    00:00:00 ps
+$ 
+$ name=krishna
+$ echo $name
+krishna
+$ echo name
+name
+$ 
+$ sh
+sh-4.1$ ps
+  PID TTY          TIME CMD
+21592 pts/0    00:00:00 bash
+21745 pts/0    00:00:00 sh
+21746 pts/0    00:00:00 ps
+sh-4.1$ echo $name
+
+sh-4.1$ exit
+exit
+$ export name
+$ sh
+sh-4.1$ echo $name
+krishna
+sh-4.1$ ps
+  PID TTY          TIME CMD
+21592 pts/0    00:00:00 bash
+21747 pts/0    00:00:00 sh
+21748 pts/0    00:00:00 ps
+sh-4.1$ sh
+sh-4.1$ ps
+  PID TTY          TIME CMD
+21592 pts/0    00:00:00 bash
+21747 pts/0    00:00:00 sh
+21749 pts/0    00:00:00 sh
+21750 pts/0    00:00:00 ps
+sh-4.1$ echo $name
+krishna
+sh-4.1$ exit
+exit
+sh-4.1$ exit
+exit
+---------------------------------------------------------------------
+$ env
+ORBIT_SOCKETDIR=/tmp/orbit-ganesha
+HOSTNAME=localhost.localdomain
+IMSETTINGS_INTEGRATE_DESKTOP=yes
+TERM=xterm
+SHELL=/bin/bash
+XDG_SESSION_COOKIE=d42b9e1debed4b9ac83743c70000001c-1444882279.821365-2080786987
+HISTSIZE=1000
+GTK_RC_FILES=/etc/gtk/gtkrc:/home/ganesha/.gtkrc-1.2-gnome2
+WINDOWID=23068675
+GNOME_KEYRING_CONTROL=/tmp/keyring-NwxYDE
+IMSETTINGS_MODULE=none
+name=krishna
+USER=ganesha
+....
+....
+----------------------------------------------------------------------
+Examples on shell scripts:
+--------------------------
+$ vi first.sh
+$ cat first.sh 
+echo "This is my first shell script"
+pwd
+date
+cal
+ps
+$ sh first.sh
+This is my first shell script
+/home/ganesha
+Thu Oct 15 16:27:21 IST 2015
+    October 2015    
+Su Mo Tu We Th Fr Sa
+             1  2  3
+ 4  5  6  7  8  9 10
+11 12 13 14 15 16 17
+18 19 20 21 22 23 24
+25 26 27 28 29 30 31
+
+  PID TTY          TIME CMD
+21592 pts/0    00:00:00 bash
+21786 pts/0    00:00:00 sh
+21789 pts/0    00:00:00 ps
+$ chmod u+x first.sh 
+$ 
+$ ./first.sh
+This is my first shell script
+/home/ganesha
+Thu Oct 15 16:29:08 IST 2015
+    October 2015    
+Su Mo Tu We Th Fr Sa
+             1  2  3
+ 4  5  6  7  8  9 10
+11 12 13 14 15 16 17
+18 19 20 21 22 23 24
+25 26 27 28 29 30 31
+
+  PID TTY          TIME CMD
+21592 pts/0    00:00:00 bash
+21791 pts/0    00:00:00 bash
+21794 pts/0    00:00:00 ps
+------------------------------------------------------------
+$ cat welcome.sh 
+echo "Enter your firstname:"
+read fname
+echo -n "Enter your lastname:"
+read lname
+echo "$fname $lname is welcome to unix shell programming"
+$ 
+$ chmod u+x welcome.sh 
+$ 
+$ ./welcome.sh
+Enter your firstname:
+krishna
+Enter your lastname:murthy
+krishna murthy is welcome to unix shell programming
+$ 
+------------------------------------------------------------
+Example with respect to quotes:
+-------------------------------
+$ cat quote.sh 
+message="welcome to unix
+shell programming"
+echo Message=$message
+echo Message="$message"
+echo Message='$message'
+echo Message=\$message
+echo Current date and time is:`date`
+echo Present working directory:$(pwd)
+$ chmod u+x quote.sh 
+$ ./quote.sh 
+Message=welcome to unix shell programming
+Message=welcome to unix
+shell programming
+Message=$message
+Message=$message
+Current date and time is:Thu Oct 15 16:39:56 IST 2015
+Present working directory:/home/ganesha
+---------------------------------------------------------------------
+1.Create a directory by name "BACKUP" in your home directories.
+2.Write a shell script which accepts filename during runtime and performs backup of that
+  file into BACKUP folder with extention ".bkp"
+
+$ cat backup.sh 
+#!/bin/bash
+
+#Script for performing file backup
+
+# Author:krishna murthy
+# Created : 14/10/2015
+# Modified: 16/10/2015
+
+echo -n "Enter file for backup:"
+read flname
+cp ${flname} ~/BACKUP/${flname}.bkp
+echo "${flname} backup completed."
+$ 
+$ chmod u+x backup.sh 
+$ ./backup.sh 
+Enter file for backup:file1
+file1 backup completed.
+$ 
+$ ls BACKUP
+file1.bkp
+----------------------------------------------------------
+Bugs:
+-If user does not provide input
+-If filename is not existing
+-If he provides directory name
+-If target file is already existing
+-------------------------------------------------------------------------------------------
+Command line arguments/Positional parameters
+---------------------------------------------
+$0	: name of the program itself
+$1	: first argument in command line
+..
+..
+$n	: 'n'th argument in command line
+$#	: number of arguments
+$*	: list of arguments
+$@	: list of arguments
+$$	: pid of current process
+$?	: exit status of last command
+-----------------------------------------------------
+$ vi cmdargs.sh 
+$ cat cmdargs.sh 
+echo "Name of the program:$0"
+echo "Name of the program:`basename $0`"
+echo "Number of arguments:$#"
+echo "List of arguments:$*"
+echo "First 2 arguments:$1 and $2"
+$ chmod u+x cmdargs.sh 
+$ ./cmdargs.sh welcome to unix shell programming
+Name of the program:./cmdargs.sh
+Name of the program:cmdargs.sh
+Number of arguments:5
+List of arguments:welcome to unix shell programming
+First 2 arguments:welcome and to
+-------------------------------------------------------
+$ cat cmdargs.sh 
+echo "Name of the program:$0"
+echo "Name of the program:`basename $0`"
+echo "Number of arguments:$#"
+echo "List of arguments:$*"
+echo "First 2 arguments:$1 and $2"
+echo "10th and 11th arguments:$10 and $11"
+echo "10th and 11th arguments:${10} and ${11}"
+$ 
+$ ./cmdargs.sh a b c d e f g h i j k l
+Name of the program:./cmdargs.sh
+Name of the program:cmdargs.sh
+Number of arguments:12
+List of arguments:a b c d e f g h i j k l
+First 2 arguments:a and b
+10th and 11th arguments:a0 and a1
+10th and 11th arguments:j and k
+------------------------------------------------------
+******************************DAY-2****************************
+# Implement backup.sh using command line arguments.
+------------------------------------------------------
+$ cat backup1.sh
+#!/bin/bash
+
+#Script for performing file backup
+
+# Author:krishna murthy
+# Created : 14/10/2015
+# Modified: 16/10/2015
+
+flname=$1
+cp ${flname} ~/BACKUP/${flname}.bkp
+echo "${flname} backup completed."
+$ ls
+BACKUP      cmdfile   DIR1       file1      file4     notes     quote.sh   Videos
+backup1.sh  cricket   Documents  file2      first.sh  outfile   sg         welcome.sh
+backup.sh   datafile  Downloads  file2_sln  message   Pictures  Templates
+cmdargs.sh  Desktop   errorfile  file3      Music     Public    unix_ln
+$ ./backup1.sh file2
+file2 backup completed.
+$ ls BACKUP
+file1.bkp  file2.bkp
+-------------------------------------------------
+Bugs in above script:
+-What if user does not provide any arguments
+-What if user provides filename which is not existing
+-What if user provides directory name as argument
+---------------------------------------------------------------------------
+$ ./backup1.sh
+cp: missing destination file operand after `/home/ganesha/BACKUP/.bkp'
+Try `cp --help' for more information.
+ backup completed.
+$ ./backup1.sh nofile
+cp: cannot stat `nofile': No such file or directory
+nofile backup completed.
+$ ./backup1.sh DIR1
+cp: omitting directory `DIR1'
+DIR1 backup completed.
+-------------------------------------------------------------------------
+$? - returns exit status of last command
+----------------------------------------
+- If last is command is successful, $? returns zero else non-zero value.
+
+$ cat datafile
+1 dhoni 37 89970
+2 sachin 42 95565
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+$ 
+$ grep sachin datafile > /dev/null 2> errorfile
+$ echo $?
+0
+$ grep sachin nofile > /dev/null 2> errorfile ; echo $?
+2
+$ grep krishna datafile > /dev/null 2> errorfile ; echo $?
+1
+---------------------------------------------------------------------------------
+&& and || operators:
+--------------------
+$ grep sachin datafile && echo "Pattern found as above"
+2 sachin 42 95565
+Pattern found as above
+$ grep krishna datafile && echo "Pattern found as above"
+$ 
+$ grep krishna datafile || echo "Pattern or file not found"
+Pattern or file not found
+$ 
+$ grep sachin datafile || echo "Pattern or file not found"
+2 sachin 42 95565
+---------------------------------------------------------------------------------
+Evaluating a condition:
+----------------------
+test <condition>
+     or
+[ <condition> ]
+     or
+[[ <condition> ]] -- useful while comparing strings for > and <
+
+Integer comparision operator:
+-----------------------------
+-eq	: equal to
+-ne	: not equal to
+-gt	: greater than
+-ge	: greater than or equal to
+-lt	: less than
+-le	: less than or equal to
+
+Logical operators:
+------------------
+-a	: AND operator
+-o	: OR operator
+!	: NOT operator
+------------------------------------------------------------------------------------
+Examples:
+---------
+$ x=10
+$ y=5
+$ z=10
+$ 
+$ test $x -gt $y ; echo $?
+0
+$ test $x -gt $z ; echo $?
+1
+$ [ $x -gt $y -a $x -eq $z ] ; echo $?
+0
+$ [ ! $x -gt $y -a $x -eq $z ] ; echo $?
+1
+$ [ $x -gt $y -o $x -lt $z ] ; echo $?
+0
+$ [ $x -lt $y -o $x -lt $z ] ; echo $?
+1
+--------------------------------------------------------------------
+String comparison operators:
+----------------------------
+"str1" = "str2"		:returns true if both strings are identical
+"str1" != "str2"	:returns true if both strings are different
+-z "str"		:returns true if string contains NULL
+-n "str"		:returns true if string contains value
+"str1" > "str2"		:returns true if str1 is greater than str2. Use [[ <condition> ]] syntax
+"str1" < "str2"		:returns true if str1 is less than str2. Use [[ <condition> ]] syntax
+----------------------------
+Examples:
+---------
+$ str1=unix
+$ str2=linux
+$ str3=unix
+$ str4=
+$ [ "$str1" = "$str2" ] ; echo $?
+1
+$ [ "$str1" = "$str3" ] ; echo $?
+0
+$ 
+$ [ "$str1" = "$str3" -a "$str2" != "$str3" ] ; echo $?
+0
+$ [ -n "$str1" ] ; echo $?
+0
+$ [ -z "$str1" ] ; echo $?
+1
+$ [ -z "$str4" ] ; echo $?
+0
+---------------------------------------------------
+File testing operators:
+-----------------------
+-e <file>		:returns true if file is existing
+-f <file>		:returns true if file is existing and is ordinary file.
+-d <file>		:returns true if file is existing and is directory file.
+-L <file>		:returns true if file is existing and is symbolic link file.
+-r <file>		:returns true if file is existing and has read permission.
+-w <file>		:returns true if file is existing and has write permission.
+-x <file>		:returns true if file is existing and has execute permission.
+-s <file>		:returns true if file is existing and is non-zero length
+<file1> -ot <file2>	:returns true if <file1> is older than <file2>
+<file1> -nt <file2>	:returns true if <file1> is newer than <file2>
+----------------------------------------------------
+Examples:
+---------
+$ [ -e file1 ] ; echo $?
+0
+$ [ -e file10 ] ; echo $?
+1
+$ [ -f file1 ] ; echo $?
+0
+$ [ -f BACKUP ] ; echo $?
+1
+$ [ -d BACKUP ] ; echo $?
+0
+$ touch file6
+$ [ ! -s file6 ] ; echo $?
+0
+$ [ -f file1 -a -x file1 ] ; echo $?
+1
+$ [ -f file1 -o -x file1 ] ; echo $?
+0
+----------------------------------------------------------
+Control Flow structures:
+------------------------
+if statement:
+------------
+if <condition> 
+then
+  <statements>
+fi
+
+if - else statement:
+--------------------
+if <condition> 
+then
+  <statements>
+else
+  <statements>
+fi
+
+if - elif - else statement:
+---------------------------
+if <condition>
+then
+  <statements>
+elif <condition>
+then
+  <statements>
+...
+else
+ <statements>
+fi
+-------------------------------------------------------------------
+Improvising backup program
+--------------------------
+$ cat backup2.sh
+#!/bin/bash
+
+#Program for performing file backup
+
+if [ $# -ne 1 ]
+then
+  echo "Invalid arguments.Usage:backup2.sh <filename>"
+  exit 1
+fi
+
+filename=$1
+
+if [ -f $filename ]
+then
+  cp ${filename} ~/BACKUP/${filename}.bkp
+  echo "$filename backup completed."
+  exit 0
+else
+  echo "$filename is not existing or is a directory"
+  exit 2
+fi
+$ chmod u+x backup2.sh
+$ ./backup2.sh
+Invalid arguments.Usage:backup2.sh <filename>
+$ echo $?
+1
+$ ./backup2.sh nofile
+nofile is not existing or is a directory
+$ ./backup2.sh file6
+file6 backup completed.
+---------------------------------------------------------------------------------------
+shift statement:
+----------------
+$ cat shiftprg.sh 
+echo "Number of arguments:$#"
+echo "List of arguments:$*"
+shift
+echo "Number of arguments:$#"
+echo "List of arguments:$*"
+shift 2
+echo "Number of arguments:$#"
+echo "List of arguments:$*"
+$ chmod u+x shiftprg.sh
+$ ./shiftprg.sh welcome to unix shell programming
+Number of arguments:5
+List of arguments:welcome to unix shell programming
+Number of arguments:4
+List of arguments:to unix shell programming
+Number of arguments:2
+List of arguments:shell programming
+--------------------------------------------------------------------------------
+-Design a shell script for replacing old pattern with new pattern in a file.
+
+$ cat replace.sh
+#!/bin/bash
+
+#Script of replacing old pattern with new pattern
+
+if [ $# -ne 3 ]
+then
+  echo "Invalid arguments.Usage:replace.sh <old_pattern> <new_pattern> <filename>"
+  exit 1
+fi
+oldpattern=$1
+newpattern=$2
+filename=$3
+
+if [ ! -e $filename -o ! -f $filename ]
+then
+  echo "$filename is not existing or it is not ordinary file"
+  exit 2
+fi
+
+if grep "$oldpattern" $filename > /dev/null
+then
+  sed -i "s/$oldpattern/$newpattern/" $filename
+  echo "Replaced $oldpattern with $newpattern in $filename"
+  exit 0
+else
+  echo "$oldpattern not found in $filename"
+  exit 3
+fi
+-------------------------------------------------------
+$ ./replace.sh
+Invalid arguments.Usage:replace.sh <old_pattern> <new_pattern> <filename>
+$ ./replace.sh sachin SACHIN nofile
+nofile is not existing or it is not ordinary file
+$ ./replace.sh sachin SACHIN DIR1
+DIR1 is not existing or it is not ordinary file
+$ ./replace.sh krishna KRISHNA datafile
+krishna not found in datafile
+$ ./replace.sh sachin SACHIN datafile
+Replaced sachin with SACHIN in datafile
+$ cat datafile
+1 dhoni 37 89970
+2 SACHIN 42 95565
+3 laxman 40 54980
+4 sehwag 38 68930
+5 dravid 41 69450
+6 yuvraj 35 58950
+--------------------------------------------------------
+case statement:
+---------------
+case <variable> in
+ option_1)  <statement_1>
+		..
+	    <statement_n>;;
+    .....
+    .....
+ option_n)  <statement_1>
+		..
+	    <statement_n>;;
+esac
+-------------------------------------------------------
+$ cat menuprg.sh 
+echo -e "\n\tMain Menu\n"
+echo "1.Display current working directory"
+echo "2.Display current date and time"
+echo "3.Display current month's calendar"
+echo "4.Quit"
+echo -n "Choose an option:"
+read choice
+
+case $choice in
+1) echo "Present working directory:`pwd`";;
+2) echo "Current date and time:$(date)";;
+3) echo "Current month's calendar"
+   cal;;
+4) exit;;
+*) echo "Invalid option choosen";;
+esac
+$ chmod u+x menuprg.sh 
+$ ./menuprg.sh 
+
+	Main Menu
+
+1.Display current working directory
+2.Display current date and time
+3.Display current month's calendar
+4.Quit
+Choose an option:3
+Current month's calendar
+    October 2015    
+Su Mo Tu We Th Fr Sa
+             1  2  3
+ 4  5  6  7  8  9 10
+11 12 13 14 15 16 17
+18 19 20 21 22 23 24
+25 26 27 28 29 30 31
+--------------------------------------------------
+$ cat city_info.sh 
+str=`echo $1|tr "[a-z]" "[A-Z]"`
+case $str in
+BLORE) 	echo "IT capital"
+	echo "Pleasant climate"
+	echo "Lot of traffic";;
+DELHI)  echo "Capital of india"
+	echo "Climate is extreme"
+	echo "Politicians paradise";;
+*)	echo "Not in dictionary";;
+esac
+$ chmod u+x city_info.sh 
+$ ./city_info.sh blORe
+IT capital
+Pleasant climate
+Lot of traffic
+$ ./city_info.sh cheNNai
+Not in dictionary
+-------------------------------------
+Integer arithmetic:
+-------------------
+expr
+ or
+$((..))
+
+$ a=20
+$ b=3
+$ expr $a + $b
+23
+$ expr $a - $b
+17
+$ expr $a / $b
+6
+$ expr $a % $b
+2
+$ expr $a \* $b
+60
+$ c=`expr $a \* $b`
+$ echo $c
+60
+$ 
+$ echo $((b*$c+a))
+200
+-------------------------------------------------------------------
+While loop:
+-----------
+while <condition>
+do
+  <statements>
+done
+-------------------------------------
+$ x=1
+$ 
+$ while [ $x -le 5 ]
+> do
+>   echo "x=$x"
+>   x=`expr $x + 1`
+> done
+x=1
+x=2
+x=3
+x=4
+x=5
+$ 
+$ # Write a script for reversing a string which will be passed as argument
+$ 
+$ ./revstr.sh welcome
+------------------------------------------------
+Debugging scripts:
+-------------------
+set -x  # begin debugging
+...
+...
+set +x  # to end debugging
+
+$ cat whileprg.sh 
+x=1
+set -x
+while [ $x -le 5 ]
+do
+  echo "x=$x"
+  x=`expr $x + 1`
+done
+set +x
+$ 
+$ ./whileprg.sh 
+++ '[' 1 -le 5 ']'
+++ echo x=1
+x=1
++++ expr 1 + 1
+++ x=2
+++ '[' 2 -le 5 ']'
+++ echo x=2
+x=2
++++ expr 2 + 1
+++ x=3
+++ '[' 3 -le 5 ']'
+++ echo x=3
+x=3
++++ expr 3 + 1
+++ x=4
+++ '[' 4 -le 5 ']'
+++ echo x=4
+x=4
++++ expr 4 + 1
+++ x=5
+++ '[' 5 -le 5 ']'
+++ echo x=5
+x=5
++++ expr 5 + 1
+++ x=6
+++ '[' 6 -le 5 ']'
+++ set +x
+--------------------------------------------
+$ cat revstr.sh 
+str=$1
+n=`echo -n $str|wc -c`
+while [ $n -gt 0 ]
+do
+  echo -n "`echo $str|cut -c$n`"
+  n=`expr $n - 1`
+done
+echo " "
+$ 
+$ chmod u+x revstr.sh 
+$ ./revstr.sh welcome
+emoclew 
+--------------------------------------------
+until loop:
+-----------
+until <condition>
+do
+  <statements>
+done
+----------------------------------------------
+- Using until loop display numbers from 5 to 1
+----------------------------------------------
+$ i=5
+$ until [ $i -eq 0 ]
+> do
+>   echo "i=$i"
+>   i=$((i-1))
+> done
+5
+4
+3
+2
+1
+---------------------------------------------
+To verify password:
+-------------------
+$ vi check_password.sh
+$ cat check_password.sh
+echo -n "Enter your password:"
+read password
+until [ "$password" = "unix" ]
+do
+  echo -n "Invalid password.Re-enter password:"
+  read password
+done
+echo "Login successful"
+$ chmod u+x check_password.sh 
+$ ./check_password.sh 
+Enter your password:linux
+Invalid password.Re-enter password:krishna
+Invalid password.Re-enter password:unix
+Login successful
+-------------------------------------------------------------------------------
+for loop:
+---------
+for <var> in <value_1> <value_2> ...........  <value_n>
+do
+  <statements>
+done
+-------------------------------------------------------------------------------
+$ for x in 2 6 9 12 65
+> do
+>   echo $x
+> done
+2
+6
+9
+12
+65
+-----------------------
+To list only directories
+------------------------
+$ vi forprg.sh
+$ cat forprg.sh 
+for flname in *
+do
+  if [ -d $flname ]
+  then
+    echo $flname
+  fi
+done
+$ chmod u+x forprg.sh 
+$ ./forprg.sh 
+BACKUP
+Desktop
+DIR1
+Documents
+Downloads
+Music
+Pictures
+Public
+sg
+Templates
+Videos
+------------------------------------------------
+-Write a script for removing all empty files. Before removing any file, script should ask
+ for user confirmation.
+$ cat rem_empty_files.sh 
+for flname in *
+do
+  if [ ! -s $flname ]
+  then
+    echo -n "Wish to remove $flname which is empty[y/n]:"
+    read choice
+    if [ "$choice" = "y" ]
+    then
+      rm -f $flname
+    fi
+  fi
+done
+$ chmod u+x rem_empty_files.sh 
+$ ./rem_empty_files.sh 
+Wish to remove errorfile which is empty[y/n]:y
+Wish to remove file3 which is empty[y/n]:y
+Wish to remove file4 which is empty[y/n]:y
+Wish to remove file6 which is empty[y/n]:y
+$ $ vi break_continue.sh
+$ cat break_continue.sh 
+for x in `seq 1 10`
+do
+  if [ $x -lt 5 ]
+  then
+    echo "Executing code of continue:$x"
+    continue
+  fi
+  echo "Executing intermediate code:$x"
+  if [ $x -gt 7 ]
+  then
+    echo "Executing code of break:$x"
+    break
+  fi
+done
+$ chmod u+x break_continue.sh 
+$ ./break_continue.sh 
+Executing code of continue:1
+Executing code of continue:2
+Executing code of continue:3
+Executing code of continue:4
+Executing intermediate code:5
+Executing intermediate code:6
+Executing intermediate code:7
+Executing intermediate code:8
+Executing code of break:8
+-----------------------------------------------------------------
+Interrupt Handling
+------------------
+$ cat printfile.sh
+#!/bin/bash
+
+filename=$1
+TEMPFILE=/tmp/print_file_$$
+pr --length=20 --width=40 -h 'Employees information' $filename > $TEMPFILE
+echo -n "Wish to print file[y/n]:"
+read choice
+if [ "$choice" = "y" ]
+then
+  lpr $TEMPFILE
+fi
+rm $TEMPFILE
+$ 
+--------------------------------
+Trapping signal:
+----------------
+$ cat trapprg.sh
+#!/bin/bash
+
+filename=$1
+TEMPFILE=/tmp/print_file_$$
+clean_up()
+{
+  rm -f $TEMPFILE
+  exit
+}
+trap clean_up SIGINT
+pr --length=20 --width=40 -h 'Employees information' $filename > $TEMPFILE
+echo -n "Wish to print file[y/n]:"
+read choice
+if [ "$choice" = "y" ]
+then
+  lpr $TEMPFILE
+fi
+clean_up
+
+$ chmod u+x trapprg.sh
+$ ./trapprg.sh datafile
+Wish to print file[y/n]:n
+$ ./trapprg.sh datafile
+Wish to print file[y/n]:^C$ 
+-------------------------------------------------------------------------
+Using options within a script:
+------------------------------
+$ cat getopts.sh 
+function usage()
+{
+  echo "Usage:getopts.sh -a -b <argument> -c"
+}
+
+while getopts ":ab:c" opt
+do
+  case $opt in
+    a) echo "Code for option a.";;
+    b) echo "Code for option b with argument $OPTARG";;
+    c) echo "Code for option c.";;
+   \?)usage;;
+  esac
+done
+$ chmod u+x getopts.sh 
+$ ./getopts.sh -a -c
+Code for option a.
+Code for option c.
+$ ./getopts.sh -b welcome -a
+Code for option b with argument welcome
+Code for option a.
+$ ./getopts.sh -x -a
+Usage:getopts.sh -a -b <argument> -c
+Code for option a.
+--------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
